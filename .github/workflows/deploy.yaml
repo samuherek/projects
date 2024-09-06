@@ -37,8 +37,9 @@ jobs:
             curl -L -o "${ZIP}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "${ARTIFACT_URL}"
           
             # Unzip the artifact contents (adjust as necessary)
-            unzip "${ZIP}" -d "${ZIP}_artifact" 
-            ls -al
+            unzip "${ZIP}" -d "${REPO}_artifact" 
+            ls -al 
+            ls -la "${REPO}_artifact"
 
           done 
 

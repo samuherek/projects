@@ -4,11 +4,6 @@
       "repo": "gol-wasm",
       "version": "1.0.0",
       "description": "Game of life in web assembly"
-    },
-    {
-        "repo": "samuherek.github.io",
-        "version": "1.0.0",
-        "description": "The main page"
     }
   ]
 }
