@@ -50,13 +50,13 @@ jobs:
           while read -r project; do
             REPO=$(echo "$project" | jq -r '.repo')
             mv "${REPO}" public
-            HTML+="<div><a href=\"\/${REPO}\">${REPO}</a></div>"
+            HTML+="<div><a href=\"/${REPO}\">${REPO}</a></div>"
           done < temp.json
 
           rm temp.json
           echo "THE HTML: ${HTML}"
           ESCAPED_HTML=$(echo "$HTML" | sed 's/[\/&]/\\&/g')
-          sed "s/<!-- REPOS -->/${ESCAPED_HTML}/g" index.html
+          sed -i "s/<!-- REPOS -->/${ESCAPED_HTML}/g" index.html
           mv index.html public
 
       - name: Upload artifact
