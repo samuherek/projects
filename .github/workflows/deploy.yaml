@@ -19,12 +19,15 @@ jobs:
           echo "Reading manifest.json..."
           PROJECTS=$(jq -c '.projects[]' manifest.json)
           echo "$PROJECTS"
-          echo "::set-output name=projects::${PROJECTS}"
+          # echo "::set-output name=projects::${PROJECTS}"
+          echo "projects=${PROJECTS}" >> $GITHUB_OUTPUT
 
       - name: Get Latest Artifact from Another Repository
         id: get_artifact
         run: |
           REPO_OWNER="samuherek"
+
+          echo "${{ steps.read_manifest.outputs.projects }}"
 
           echo "${{ steps.read_manifest.outputs.projects }}" | jq -c -r '.[]' | while read project; do
             REPO=$(echo $project | jq -r '.repo')
