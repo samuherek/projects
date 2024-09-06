@@ -12,55 +12,58 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
-  
-      - name: Read Manifest File
-        id: read_manifest
-        run: |
-          echo "Reading manifest.json..."
-          PROJECTS=$(jq -c '.projects[]' manifest.json)
-          echo "$PROJECTS"
-          # echo "::set-output name=projects::${PROJECTS}"
-          echo "projects=${PROJECTS}" >> $GITHUB_OUTPUT
 
       - name: Get Latest Artifact from Another Repository
         id: get_artifact
         run: |
           REPO_OWNER="samuherek"
 
-          echo "${{ steps.read_manifest.outputs.projects }}"
+          jq -c '.projects[]' manifest.json | while read project; do
+            REPO=$(echo "$project" | jq -r '.repo')
+            echo "Getting the '$REPO' artifacts"
 
-          echo "${{ steps.read_manifest.outputs.projects }}" | jq -c -r '.[]' | while read project; do
-            REPO=$(echo $project | jq -r '.repo')
-            
-            echo "Info for $REPO from"
             API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO}/actions/artifacts"
             ARTIFACTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $API_URL)
             echo "$ARTIFACTS"
-            ARTIFACT_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts | sort_by(.created_at) | last | .archive_download_url')
+            # ARTIFACT_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts | sort_by(.created_at) | last | .archive_download_url')
 
-            if [ "$ARTIFACT_URL" == "null" ] || [ -z "$ARTIFACT_URL" ]; then
-              echo "No artifacts found in the source repository."
-              exit 1
-            fi
-          
-            echo "Found latest artifact: $ARTIFACT_URL"
-            # echo "::set-output name=artifact_url::$ARTIFACT_URL"
+          done 
 
-            #
-            # # Check out the project repo and pull the artifact
-            # git clone $REPO temp-repo
-            # cd temp-repo
-            #
-            # # Ensure artifacts exist, modify this section based on the artifact structure
-            # if [ -f $ARTIFACT_PATH ]; then
-            #   mkdir -p "../artifacts/$NAME"
-            #   cp $ARTIFACT_PATH "../artifacts/$NAME/"
-            # else
-            #   echo "Artifact not found for $NAME"
-            # fi
-            # cd ..
-            # rm -rf temp-repo
-          done
+
+
+
+          # echo $(jq -c '.projects[]' manifest.json) | while read project; do
+          #   REPO=$(echo $project | jq -r '.repo')
+          #   
+          #   echo "Info for $REPO from"
+          #   API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO}/actions/artifacts"
+          #   ARTIFACTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $API_URL)
+          #   echo "$ARTIFACTS"
+          #   ARTIFACT_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts | sort_by(.created_at) | last | .archive_download_url')
+          #
+          #   if [ "$ARTIFACT_URL" == "null" ] || [ -z "$ARTIFACT_URL" ]; then
+          #     echo "No artifacts found in the source repository."
+          #     exit 1
+          #   fi
+          # 
+          #   echo "Found latest artifact: $ARTIFACT_URL"
+          #   # echo "::set-output name=artifact_url::$ARTIFACT_URL"
+          #
+          #   #
+          #   # # Check out the project repo and pull the artifact
+          #   # git clone $REPO temp-repo
+          #   # cd temp-repo
+          #   #
+          #   # # Ensure artifacts exist, modify this section based on the artifact structure
+          #   # if [ -f $ARTIFACT_PATH ]; then
+          #   #   mkdir -p "../artifacts/$NAME"
+          #   #   cp $ARTIFACT_PATH "../artifacts/$NAME/"
+          #   # else
+          #   #   echo "Artifact not found for $NAME"
+          #   # fi
+          #   # cd ..
+          #   # rm -rf temp-repo
+          # done
           
       # - name: Download the Latest Artifact
       #   if: steps.get_artifact.outputs.artifact_url != ''
