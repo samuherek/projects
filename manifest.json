@@ -1,9 +1,9 @@
 {
   "projects": [
     {
-      "name": "gol-wasm",
+      "repo": "gol-wasm",
       "version": "1.0.0",
       "description": "Game of life in web assembly"
-    },
+    }
   ]
 }
