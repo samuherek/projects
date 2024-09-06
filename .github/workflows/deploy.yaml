@@ -33,13 +33,11 @@ jobs:
             fi
 
             ZIP="${REPO}.zip"
-            # Download the artifact using the URL obtained earlier
             curl -L -o "${ZIP}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "${ARTIFACT_URL}"
-          
-            # Unzip the artifact contents (adjust as necessary)
-            unzip "${ZIP}" -d "${REPO}_artifact" 
-            ls -al 
-            ls -la "${REPO}_artifact"
+            mkdir "${REPO}" 
+            unzip -p "${ZIP}" | tar -xv -C "${REPO}" -f -
+            ls -la
+            ls -al "${REPO}"
 
           done 
 
