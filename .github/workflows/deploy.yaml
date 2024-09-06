@@ -24,8 +24,21 @@ jobs:
 
             API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO}/actions/artifacts"
             ARTIFACTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $API_URL)
-            echo "$ARTIFACTS"
-            # ARTIFACT_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts | sort_by(.created_at) | last | .archive_download_url')
+            ARTIFACT_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts | sort_by(.created_at) | last | .archive_download_url')
+            echo "$ARTIFACT_URL"
+
+            if [ "$ARTIFACT_URL" == "null" ] || [ -z "$ARTIFACT_URL" ]; then
+              echo "No artifacts found in the source repository."
+              exit 1
+            fi
+
+            ZIP="${REPO}.zip"
+            # Download the artifact using the URL obtained earlier
+            curl -L -o "${ZIP}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "${ARTIFACT_URL}"
+          
+            # Unzip the artifact contents (adjust as necessary)
+            unzip "${ZIP}" -d "${ZIP}_artifact" 
+            ls -al
 
           done 
 
